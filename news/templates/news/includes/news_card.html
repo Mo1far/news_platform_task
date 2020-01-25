@@ -1,0 +1,10 @@
+<div class="card mt-3">
+    <div class="card-header">
+        {{ news.author }} - {{ news.posted_date|date:'F d, Y-H:i' }}
+    </div>
+    <div class="card-body">
+        <h5 class="card-title">{{ news.title }}</h5>
+        <p class="card-text">{{ news.content|safe }}</p>
+        <a href="{{ news.get_absolute_url }}" class="btn btn-primary">Read</a>
+    </div>
+</div>

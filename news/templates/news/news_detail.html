@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <article>
+        <h1>
+            {{ news.title }} by {{ news.author }}
+        </h1>
+        <br>
+        <p>
+            {{ news.content|safe }}
+        </p>
+        <div>{{ news.posted_date|date:'F d, Y-H:i' }}</div>
+        {% if can_delete %}
+            <form action="delete/" method="post">
+                {% csrf_token %}
+                <input type="submit" value="Delete">
+            </form>
+        {% endif %}
+        {% if can_change %}
+            <form action="update/" method="get">
+                {% csrf_token %}
+                <input type="submit" value="Update">
+            </form>
+        {% endif %}
+    </article>
+    <form action="comment/" method="post">
+        {% csrf_token %}
+        {{ comment_form|crispy }}
+        <input type="submit">
+    </form>
+    {{ delete_link }}
+    {% for comment in comments %}
+        {% include 'news/includes/comment_card.html' %}
+    {% endfor %}
+
+{% endblock %}
