@@ -1,3 +1,5 @@
+import os
+
 from django.urls import reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
@@ -24,7 +26,7 @@ class SendGridAPI:
             subject='Активация',
             html_content=text
         )
-        sg = SendGridAPIClient('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')
+        sg = SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
         response = sg.send(message)
         # print(response.status)
 #
