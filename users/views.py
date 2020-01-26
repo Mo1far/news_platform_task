@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth import views
+from django.contrib.sites.shortcuts import get_current_site
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -22,7 +23,9 @@ class SignUp(CreateView):
     def form_valid(self, form):
         valid = super(SignUp, self).form_valid(form)
         user = form.save()
-        SendGridAPI.send_veritification_mail(user)
+        scheme = self.request.scheme
+        domain = get_current_site(self.request).domain
+        SendGridAPI.send_verification_mail(user, scheme, domain)
         return valid
 
 

@@ -10,15 +10,15 @@ from users.tokens import account_activation_token
 
 
 class SendGridAPI:
+
     @staticmethod
-    def send_veritification_mail(user):
+    def send_verification_mail(user, scheme, domain):
         kwargs = {
             'uidb64': urlsafe_base64_encode(force_bytes(user.pk)),
             'token': account_activation_token.make_token(user=user)
         }
         url = reverse('user:activate', kwargs=kwargs)
-        activation_link = f'http://127.0.0.1:8000{url}'
-        print(activation_link)
+        activation_link = f'{scheme}://{domain}{url}'
         text = f'Activate account: {activation_link}'
         message = Mail(
             from_email='noreply@test.com',
@@ -27,8 +27,3 @@ class SendGridAPI:
             html_content=text
         )
         sg = SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
-        response = sg.send(message)
-        # print(response.status)
-#
-# user = User.objects.get(id=32)
-# SendGridAPI.send_veritification_mail(user=user)
