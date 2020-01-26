@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.contrib.auth import views
 from django.http import HttpResponse
 from django.shortcuts import redirect
@@ -14,9 +15,9 @@ from .sendgridAPI import SendGridAPI, account_activation_token
 
 class SignUp(CreateView):
     model = User
-    template_name = 'users/login.html'
+    template_name = 'users/signup.html'
     form_class = SignUpForm
-    success_url = '/user/email_confirmation_request/'
+    success_url = '/'
 
     def form_valid(self, form):
         valid = super(SignUp, self).form_valid(form)
@@ -40,7 +41,9 @@ class ActivateView(TemplateView):
             user = User.objects.get(id=uid)
         except(TypeError, ValueError):
             user = None
-
+        except User.DoesNotExist:
+            messages.add_message(self.request, messages.ERROR, 'User does not exist')
+            return redirect('/')
         if user is not None and account_activation_token.check_token(user, token):
             user.is_active = True
             user.save()
