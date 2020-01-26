@@ -1,14 +1,9 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
-from django.shortcuts import render
 from django.views.generic import ListView, CreateView, DetailView, FormView, DeleteView, UpdateView
 
 from news.forms import NewsCreateForm, CommentForm
 from news.models import News, Comment
-
-
-def home(request):
-    return render(request, template_name='base.html')
 
 
 class NewsCreateView(LoginRequiredMixin, CreateView):

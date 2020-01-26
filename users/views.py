@@ -1,6 +1,7 @@
 from django.contrib.auth import views
 from django.http import HttpResponse
 from django.shortcuts import redirect
+from django.urls import reverse
 from django.utils.encoding import force_text
 from django.utils.http import urlsafe_base64_decode
 from django.views.generic import CreateView, TemplateView
@@ -43,7 +44,7 @@ class ActivateView(TemplateView):
         if user is not None and account_activation_token.check_token(user, token):
             user.is_active = True
             user.save()
-            return redirect('/user/login/')
+            return redirect(reverse('user:email_confirmation_successful'))
         else:
             return HttpResponse('Invalid Token')
 
