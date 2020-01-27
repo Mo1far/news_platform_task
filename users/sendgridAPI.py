@@ -1,5 +1,6 @@
 import os
 
+from django.contrib.sites.shortcuts import get_current_site
 from django.urls import reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
@@ -27,3 +28,20 @@ class SendGridAPI:
             html_content=text
         )
         sg = SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
+        sg.send(message)
+
+    @staticmethod
+    def send_new_comment_notification_mail(user, comment, request):
+        print('qqq', user.email, reverse('news:detail', kwargs={'pk': comment.post.id}))
+        link = f"{request.scheme}://{get_current_site(request).domain}{reverse('news:detail', kwargs={'pk': comment.post.id})}"
+        text = f'''New comment on your news {link}'''
+        print(text)
+        message = Mail(
+            from_email='noreply@test.com',
+            to_emails=user.email,
+            subject='New comment on your news',
+            html_content=text
+        )
+        sg = SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
+        response = sg.send(message)
+        print(response.status_code)

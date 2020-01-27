@@ -4,6 +4,7 @@ from django.views.generic import ListView, CreateView, DetailView, FormView, Del
 
 from news.forms import NewsCreateForm, CommentForm
 from news.models import News, Comment
+from users.sendgridAPI import SendGridAPI
 
 
 class NewsCreateView(LoginRequiredMixin, CreateView):
@@ -78,5 +79,6 @@ class CommentView(FormView):
         news = News.objects.get(id=self.kwargs['pk'])
         form.instance.author = self.request.user
         form.instance.post = news
-        form.save()
+        comment = form.save()
+        SendGridAPI.send_new_comment_notification_mail(comment.post.author, comment, self.request)
         return super().form_valid(form)
