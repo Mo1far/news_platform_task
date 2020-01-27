@@ -5,7 +5,7 @@ from .models import News
 
 @admin.register(News)
 class NewsAdmin(admin.ModelAdmin):
-    list_display = ('title', 'author', 'posted_date')
+    list_display = ('id', 'title', 'author', 'posted_date')
     list_filter = ('status',)
     actions = ('publish', 'unpublish')
 
