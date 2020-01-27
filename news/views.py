@@ -52,6 +52,7 @@ class NewsDetailView(DetailView):
             'news.change_news') or self.request.user == self.object.author
 
         return context
+    # TODO: reworking views to filtered access by status
 
 
 class NewsUpdateView(UpdateView):

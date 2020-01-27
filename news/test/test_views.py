@@ -96,3 +96,18 @@ class NewsDetailTest(TestCase):
     def test_comment_form_available(self):
         resp = self.client.get(reverse('news:detail', kwargs={'pk': 1}))
         self.assertIsNotNone(resp.context['comment_form'])
+
+
+class NewsCreateTest(TestCase):
+
+    def test_detail_page_status_code(self):
+        resp = self.client.get('/create/')
+        self.assertEquals(resp.status_code, 200)
+
+    def test_view_url_accessible_by_name(self):
+        resp = self.client.get(reverse('news:create'))
+        self.assertEquals(resp.status_code, 200)
+
+    def test_views_uses_correct_template(self):
+        resp = self.client.get(reverse('news:detail', kwargs={'pk': 1}))
+        self.assertTemplateUsed(resp, 'news/news_create.html')
