@@ -37,6 +37,9 @@ class NewsDetailView(DetailView):
     template_name = 'news/news_detail.html'
     context_object_name = 'news'
 
+    def get_object(self, queryset=None):
+        return News.objects.get(id=self.kwargs['pk'], status='PUBLISHED')
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['comment_form'] = CommentForm
@@ -48,7 +51,6 @@ class NewsDetailView(DetailView):
             'news.change_news') or self.request.user == self.object.author
 
         return context
-    # TODO: reworking views to filtered access by status
 
 
 class NewsUpdateView(UpdateView):
