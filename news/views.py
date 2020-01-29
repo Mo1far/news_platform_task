@@ -22,12 +22,11 @@ class NewsCreateView(LoginRequiredMixin, CreateView):
 
 class NewsDeleteView(LoginRequiredMixin, DeleteView):
     model = News
-    template_name = 'news/news_delete.html'
     success_url = '/news/'
 
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
-        if self.object.author != self.request.user and not self.request.user.has_perm('news:can_delete'):
+        if self.object.author != self.request.user and not self.request.user.has_perm('news.delete_news'):
             raise PermissionDenied('You are dont have permissions for this')
         return super(NewsDeleteView, self).delete(request, *args, **kwargs)
 

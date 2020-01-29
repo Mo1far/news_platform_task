@@ -78,6 +78,18 @@ class NewsDetailTest(TestCase):
         published_news = News.objects.create(content='PUBLISHED news by activated user',
                                              title='test', author=activated_user,
                                              status='PUBLISHED')
+        published_news.save()
+
+        waiting_confirmation_published_news = News.objects.create(
+            content='PUBLISHED WAITING_CONFIRMATION news by activated user',
+            title='test', author=activated_user,
+            status='WAITING_CONFIRMATION')
+        waiting_confirmation_published_news.save()
+
+        unpublished_news = News.objects.create(content='PUBLISHED WAITING_CONFIRMATION news by activated user',
+                                               title='test', author=activated_user,
+                                               status='UNPUBLISHED')
+        unpublished_news.save()
 
     def test_detail_page_status_code(self):
         resp = self.client.get('/news/1/')
@@ -109,12 +121,9 @@ class NewsCreateTest(TestCase):
                                    title='test', author=user,
                                    status='PUBLISHED')
 
-        call_command('create_default_groups')
 
     def setUp(self):
-        user = User.objects.get(id=1)
-        user.save()
-        self.user = user
+        self.user = User.objects.get(id=1)
         self.client.force_login(self.user)
         call_command('create_default_groups')
 
@@ -150,3 +159,53 @@ class NewsCreateTest(TestCase):
                                 follow=True)
 
         self.assertContains(resp, 'test content from groups with perms')
+
+
+class NewsDeleteTest(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        user_with_publication = User.objects.create(email='user_with_publication@test.com', password='test_pass2',
+                                                    is_active=True)
+        redactor_user = User.objects.create(email='redactor_user@test.com', password='test_pass2', is_active=True)
+        admin_user = User.objects.create(email='admin_user@test.com', password='test_pass2', is_active=True)
+        news = News.objects.create(content='PUBLISHED news by activated user',
+                                   title='test', author=user_with_publication,
+                                   status='PUBLISHED')
+
+    def setUp(self):
+        call_command('create_default_groups')
+
+        self.user_with_publication = User.objects.get(email='user_with_publication@test.com')
+        self.user_with_publication.groups.add(Group.objects.get(name='users'))
+
+        self.redactor_user = User.objects.get(email='redactor_user@test.com')
+        self.redactor_user.groups.add(Group.objects.get(name='redactors'))
+
+        self.admin_user = User.objects.get(email='admin_user@test.com')
+        self.admin_user.groups.add(Group.objects.get(name='admins'))
+
+    def test_delete_from_not_authorized_user(self):
+        resp = self.client.post(reverse('news:delete', kwargs={'pk': 1}))
+        self.assertEquals(resp.status_code, 403)
+
+    def test_delete_from_user_without_perm(self):
+        self.client.force_login(self.redactor_user)
+        resp = self.client.post(reverse('news:delete', kwargs={'pk': 1}))
+        self.assertEquals(resp.status_code, 403)
+
+    def test_delete_from_author(self):
+        self.client.force_login(self.user_with_publication)
+        resp = self.client.post(reverse('news:delete', kwargs={'pk': 1}))
+        self.assertRedirects(resp, reverse('news:main'))
+
+    def test_delete_from_admin(self):
+        self.client.force_login(self.admin_user)
+        resp = self.client.post(reverse('news:delete', kwargs={'pk': 1}))
+        self.assertRedirects(resp, reverse('news:main'))
+
+    def test_delete_not_exiting_news(self):
+        self.client.force_login(self.admin_user)
+        resp = self.client.post(reverse('news:delete', kwargs={'pk': 999}))
+        print(resp)
+        self.assertEquals(resp.status_code, 404)
