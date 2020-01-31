@@ -26,9 +26,12 @@ class NewsDeleteView(LoginRequiredMixin, DeleteView):
 
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
-        if self.object.author != self.request.user and not self.request.user.has_perm('news.delete_news'):
+        if self.object.author == self.request.user:
+            return super(NewsDeleteView, self).dispatch(request, *args, **kwargs)
+        elif self.request.user.has_perm('news.delete_news') is True:
+            return super(NewsDeleteView, self).dispatch(request, *args, **kwargs)
+        else:
             raise PermissionDenied('You are dont have permissions for this')
-        return super(NewsDeleteView, self).delete(request, *args, **kwargs)
 
 
 class NewsDetailView(DetailView):
@@ -59,8 +62,8 @@ class NewsUpdateView(UpdateView):
 
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
-        if self.object.author != request.user or request.user.has_perm('can_edit'):
-            raise PermissionDenied()
+        if self.object.author != self.request.user or not request.user.has_perm('news.edit_news'):
+            raise PermissionDenied('You are dont have permissions for this')
         return super(NewsUpdateView, self).dispatch(request, *args, **kwargs)
 
 

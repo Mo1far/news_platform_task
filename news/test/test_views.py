@@ -165,6 +165,62 @@ class NewsDeleteTest(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        user_with_publication = User.objects.create(email='user_with_publication@test.com',
+                                                    password='test_pass2',
+                                                    is_active=True)
+        redactor_user = User.objects.create(email='redactor_user@test.com', password='test_pass2', is_active=True)
+        admin_user = User.objects.create(email='admin_user@test.com', password='test_pass2', is_active=True)
+
+        call_command('create_default_groups')
+
+    def setUp(self):
+        self.user_with_publication = User.objects.get(email='user_with_publication@test.com')
+        self.user_with_publication.groups.add(Group.objects.get(name='users'))
+
+        self.redactor_user = User.objects.get(email='redactor_user@test.com')
+        self.redactor_user.groups.add(Group.objects.get(name='redactors'))
+
+        self.admin_user = User.objects.get(email='admin_user@test.com')
+        self.admin_user.groups.add(Group.objects.get(name='admins'))
+
+    def create_news(self):
+        news = News.objects.get_or_create(content='PUBLISHED news by activated user',
+                                          title='test from activated user', author=self.user_with_publication,
+                                          status='PUBLISHED', id=1)
+
+    def test_delete_from_not_authorized_user(self):
+        self.create_news()
+        resp = self.client.post(reverse('news:delete', kwargs={'pk': 1}))
+        self.assertEquals(resp.status_code, 403)
+
+    def test_delete_from_user_without_perm(self):
+        self.create_news()
+        self.client.force_login(self.redactor_user)
+        resp = self.client.post(reverse('news:delete', kwargs={'pk': 1}))
+        self.assertEquals(resp.status_code, 403)
+
+    def test_delete_from_author(self):
+        self.create_news()
+        self.client.force_login(self.user_with_publication)
+        resp = self.client.post(reverse('news:delete', kwargs={'pk': 1}))
+        self.assertRedirects(resp, reverse('news:main'))
+
+    def test_delete_from_admin(self):
+        self.create_news()
+        self.client.force_login(self.admin_user)
+        resp = self.client.post(reverse('news:delete', kwargs={'pk': 1}))
+        self.assertRedirects(resp, reverse('news:main'))
+
+    def test_delete_not_exiting_news(self):
+        self.client.force_login(self.admin_user)
+        resp = self.client.post(reverse('news:delete', kwargs={'pk': 999}))
+        self.assertEquals(resp.status_code, 404)
+
+
+class NewsUpdateTest(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
         user_with_publication = User.objects.create(email='user_with_publication@test.com', password='test_pass2',
                                                     is_active=True)
         redactor_user = User.objects.create(email='redactor_user@test.com', password='test_pass2', is_active=True)
@@ -185,11 +241,11 @@ class NewsDeleteTest(TestCase):
         self.admin_user = User.objects.get(email='admin_user@test.com')
         self.admin_user.groups.add(Group.objects.get(name='admins'))
 
-    def test_delete_from_not_authorized_user(self):
-        resp = self.client.post(reverse('news:delete', kwargs={'pk': 1}))
+    def test_update_from_not_authorized_user(self):
+        resp = self.client.post(reverse('news:update', kwargs={'pk': 1}))
         self.assertEquals(resp.status_code, 403)
 
-    def test_delete_from_user_without_perm(self):
+    def test_update_from_user_without_perm(self):
         self.client.force_login(self.redactor_user)
         resp = self.client.post(reverse('news:delete', kwargs={'pk': 1}))
         self.assertEquals(resp.status_code, 403)
