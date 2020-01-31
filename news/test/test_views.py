@@ -242,26 +242,27 @@ class NewsUpdateTest(TestCase):
         self.admin_user.groups.add(Group.objects.get(name='admins'))
 
     def test_update_from_not_authorized_user(self):
-        resp = self.client.post(reverse('news:update', kwargs={'pk': 1}))
+        resp = self.client.post(reverse('news:update', kwargs={'pk': 1}), {'title': 'updated_test_status',
+                                                                           'content': 'sdfsdfsdcscs'})
         self.assertEquals(resp.status_code, 403)
 
     def test_update_from_user_without_perm(self):
         self.client.force_login(self.redactor_user)
-        resp = self.client.post(reverse('news:delete', kwargs={'pk': 1}))
+        resp = self.client.post(reverse('news:update', kwargs={'pk': 1}), {'title': 'updated_test_status',
+                                                                           'content': 'sdfsdfsdcscs'})
         self.assertEquals(resp.status_code, 403)
 
-    def test_delete_from_author(self):
+    def test_update_from_author(self):
         self.client.force_login(self.user_with_publication)
-        resp = self.client.post(reverse('news:delete', kwargs={'pk': 1}))
-        self.assertRedirects(resp, reverse('news:main'))
 
     def test_delete_from_admin(self):
         self.client.force_login(self.admin_user)
-        resp = self.client.post(reverse('news:delete', kwargs={'pk': 1}))
-        self.assertRedirects(resp, reverse('news:main'))
+        resp = self.client.post(reverse('news:update', kwargs={'pk': 1}), {'title': 'updated_test_status',
+                                                                           'content': 'sdfsdfsdcscs'})
+        self.assertRedirects(resp, reverse('news:detail', kwargs={'pk': 1}))
 
     def test_delete_not_exiting_news(self):
         self.client.force_login(self.admin_user)
-        resp = self.client.post(reverse('news:delete', kwargs={'pk': 999}))
-        print(resp)
+        resp = self.client.post(reverse('news:update', kwargs={'pk': 155}), {'title': 'updated_test_status',
+                                                                             'content': 'sdfsdfsdcscs'})
         self.assertEquals(resp.status_code, 404)

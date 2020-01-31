@@ -62,9 +62,12 @@ class NewsUpdateView(UpdateView):
 
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
-        if self.object.author != self.request.user or not request.user.has_perm('news.edit_news'):
+        if self.object.author == self.request.user:
+            return super(NewsUpdateView, self).dispatch(request, *args, **kwargs)
+        elif self.request.user.has_perm('news.delete_news') is True:
+            return super(NewsUpdateView, self).dispatch(request, *args, **kwargs)
+        else:
             raise PermissionDenied('You are dont have permissions for this')
-        return super(NewsUpdateView, self).dispatch(request, *args, **kwargs)
 
 
 class NewsListView(ListView):
