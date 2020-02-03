@@ -5,6 +5,6 @@
     <div class="card-body">
         <h5 class="card-title">{{ news.title }}</h5>
         <p class="card-text">{{ news.content|safe }}</p>
-        <a href="{{ news.get_absolute_url }}" class="btn btn-primary">Read</a>
+        <a href="{% url 'news:detail' pk=news.id %}" class="btn btn-primary">Read</a>
     </div>
 </div>
