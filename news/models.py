@@ -1,20 +1,27 @@
 from ckeditor.fields import RichTextField
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 from users.models import User
 
 
 class News(models.Model):
-    STATUS_CHOICES = [
-        ('WAITING_CONFIRMATION', 'waiting_confirmation'),
-        ('PUBLISHED', 'published'),
-        ('UNPUBLISHED', 'unpublished'),
-    ]
+    class NEWS_STATUS:
+        UNPUBLISHED = 'unpublished'
+        PUBLISHED = 'published'
+        WAITING_CONFIRMATION = 'waiting_confirmation'
+        STATUS_CHOICES = [
+            (UNPUBLISHED, _('unpublished')),
+            (PUBLISHED, _('published')),
+            (WAITING_CONFIRMATION, _('waiting_confirmation')),
+        ]
 
     class Meta:
         permissions = [
             ('publish', 'can_publish_without_moderation')
         ]
+        verbose_name = 'news'
+        verbose_name_plural = 'news'
 
     title = models.CharField(max_length=30)
     content = RichTextField()
@@ -22,7 +29,7 @@ class News(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     status = models.CharField(
         max_length=20,
-        choices=STATUS_CHOICES,
+        choices=NEWS_STATUS.STATUS_CHOICES,
         default='WAITING_CONFIRMATION'
     )
 
