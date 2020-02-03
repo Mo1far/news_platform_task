@@ -45,7 +45,7 @@ class NewsDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['comment_form'] = CommentForm
-        comments = Comment.objects.filter(post=self.object)
+        comments = Comment.objects.filter(news=self.object)
         context['comments'] = comments
         context['can_delete'] = self.request.user.has_perm(
             'news.delete_news') or self.request.user == self.object.author

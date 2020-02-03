@@ -7,13 +7,13 @@ authors = ["Vladyslav Babych"]
 [tool.poetry.dependencies]
 python = "^3.8"
 django = "^3.0"
-psycopg2 = "^2.8.4"
 django-crispy-forms = "^1.8.1"
 requests = "^2.22.0"
 django-bootstrap-datepicker-plus = "^3.0.5"
 django-bootstrap4 = "^1.1.1"
 django-ckeditor = "^5.8.0"
 sendgrid = "^6.1.1"
+psycopg2-binary = "^2.8.4"
 
 [tool.poetry.dev-dependencies]
 
