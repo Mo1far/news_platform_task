@@ -6,15 +6,10 @@ from users.models import User
 
 
 class News(models.Model):
-    class NEWS_STATUS:
-        UNPUBLISHED = 'unpublished'
-        PUBLISHED = 'published'
-        WAITING_CONFIRMATION = 'waiting_confirmation'
-        STATUS_CHOICES = [
-            (UNPUBLISHED, _('unpublished')),
-            (PUBLISHED, _('published')),
-            (WAITING_CONFIRMATION, _('waiting_confirmation')),
-        ]
+    class NewsStatus(models.TextChoices):
+        UNPUBLISHED = 'unpublished', _('unpublished')
+        PUBLISHED = 'published', _('published')
+        WAITING_CONFIRMATION = 'waiting_confirmation', _('waiting_confirmation')
 
     class Meta:
         permissions = [
@@ -29,8 +24,8 @@ class News(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     status = models.CharField(
         max_length=20,
-        choices=NEWS_STATUS.STATUS_CHOICES,
-        default='WAITING_CONFIRMATION'
+        choices=NewsStatus.choices,
+        default=NewsStatus.WAITING_CONFIRMATION
     )
 
     def __str__(self):
