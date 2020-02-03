@@ -18,14 +18,16 @@ class News(models.Model):
         verbose_name = 'news'
         verbose_name_plural = 'news'
 
-    title = models.CharField(max_length=30)
-    content = RichTextField()
-    posted_date = models.DateTimeField(auto_now_add=True)
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    title = models.CharField(max_length=30, verbose_name='Title', help_text='Use short roomy title')
+    content = RichTextField(verbose_name='News content', help_text='Insert your news here')
+    posted_date = models.DateTimeField(auto_now_add=True, verbose_name='Posted date', help_text='Date of posted')
+    author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Author', help_text='Link to author')
     status = models.CharField(
         max_length=20,
         choices=NewsStatus.choices,
-        default=NewsStatus.WAITING_CONFIRMATION
+        default=NewsStatus.WAITING_CONFIRMATION,
+        verbose_name='Confirmation status',
+        help_text='This is status of news publication'
     )
 
     def __str__(self):
@@ -33,7 +35,7 @@ class News(models.Model):
 
 
 class Comment(models.Model):
-    text = models.CharField(max_length=100)
-    posted_date = models.DateTimeField(auto_now_add=True)
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
-    post = models.ForeignKey(News, on_delete=models.CASCADE)
+    text = models.CharField(max_length=100, verbose_name='Content', help_text='Comment text')
+    posted_date = models.DateTimeField(auto_now_add=True, verbose_name='Posted date', help_text='Date of posted')
+    author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Author', help_text='Link to author')
+    news = models.ForeignKey(News, on_delete=models.CASCADE, verbose_name='News', help_text='Link to news')
