@@ -1,6 +1,5 @@
 from ckeditor.fields import RichTextField
 from django.db import models
-from django.urls import reverse
 
 from users.models import User
 
@@ -26,9 +25,6 @@ class News(models.Model):
         choices=STATUS_CHOICES,
         default='WAITING_CONFIRMATION'
     )
-
-    def get_absolute_url(self):
-        return reverse('news:detail', kwargs={'pk': self.pk})
 
     def __str__(self):
         return self.title
